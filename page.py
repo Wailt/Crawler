@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
-from requests import get, post
-import urllib.parse as up
+from requests import get
 
 
 def encode_and_replace(li):
     li.encode('UTF-8')
     return li.attrs['href'] if 'href' in li.attrs else ''
+
 
 class page(object):
     def getHiperlinks(self):
@@ -15,11 +15,13 @@ class page(object):
             url = self.head + self.title
 
         req = get(url)
-        soup = BeautifulSoup(req.content.decode(req.encoding), "lxml")
-
-        arList = [encode_and_replace(li) for li in soup.findAll('a')]
-        arList = list(set([i for i in arList if self.validation(i)]))
-        return arList
+        try:
+            soup = BeautifulSoup(req.content.decode(req.encoding), "lxml")
+            arList = [encode_and_replace(li) for li in soup.findAll('a')]
+            arList = list(set([i for i in arList if self.validation(i)]))
+            return arList
+        except:
+            return []
 
     def __init__(self, title, head):
         self.title = title

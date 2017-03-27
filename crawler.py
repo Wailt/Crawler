@@ -1,5 +1,5 @@
 from threading import Thread
-from time import sleep
+from time import sleep, time
 
 from downloader import Downloader
 from page import page
@@ -44,7 +44,7 @@ class crawler(object):
         self.newSet.extend([i for i in page_i.pageList if 'http' not in i and 'irc' not in i])
         self.workers -= 1
 
-    def to_craw(self):
+    def one_step(self):
         self.newSet = []
         for i in self.unvisitedPage[:self.batch]:
             while not self.has_free_hands():
@@ -60,6 +60,17 @@ class crawler(object):
         self.unvisitedPage.extend(self.newSet)
 
         self.newSet = []
+
+    def to_craw(self):
+        n = 1
+        b = time()
+        while (self.has_step()):
+            self.one_step()
+            n += self.batch
+            print('visited', len(self.data),
+                  'unvisited', len(self.unvisitedPage),
+                  'mean_time:', (time() - b) / n)
+            print('fraction', len(self.unvisitedPage) / len(self.data))
 
     def has_step(self):
         return len(self.unvisitedPage) > 0

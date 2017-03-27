@@ -1,4 +1,5 @@
-import urllib
+from urllib.request import urlopen
+
 from threading import Thread
 from time import sleep
 
@@ -8,22 +9,18 @@ class Downloader:
         self.bag_img = []
         self.n = n
         self.workers = 0
+        self.img = ['.img', '.jpg', '.bmp', '.png', '.svg']
 
     def filter_url_img(self, data):
-        img = ['.img', '.jpg', '.bmp', '.png', '.svg']
-        res = []
-        for i in data:
-            if max(map(lambda x: x in i, img)) and '/wiki/' not in i:
-                res.append(i)
+        res = [i for i in data if max(map(lambda x: x in i, self.img)) and '/wiki/' not in i]
         print('total_images', len(res))
         return res
 
     def download_one_img(self, i, img):
         try:
-            with urllib.request.urlopen('https:' + img) as url:
+            with urlopen('https:' + img) as url:
                 s = url.read()
-            t = img.split('.')[-1]
-            out = open('images/' + str(i) + '.' + t, 'wb')
+            out = open('images/' + str(i) + '.' + img.split('.')[-1], 'wb')
             out.write(s)
             out.close()
             self.workers -= 1
