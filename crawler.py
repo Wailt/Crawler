@@ -1,8 +1,7 @@
-import urllib
 from threading import Thread
 from time import sleep
-from time import time
 
+from downloader import Downloader
 from page import page
 
 
@@ -11,12 +10,16 @@ class crawler(object):
         self.data = []
         self.unvisitedPage = []
         self.unvisitedPage.append(init)
+
         self.n = n
         self.workers = 0
         self.newSet = []
+
         self.batch = batch
         self.head = init
         self.bag_img = []
+
+        self.downloader = Downloader(n=16)
 
     def __contains__(self, value):
         result = [i.title == value for i in self.data]
@@ -38,7 +41,7 @@ class crawler(object):
         page_i = page(p, self.head)
         if p not in self:
             self.add(page_i)
-        self.newSet += [i for i in page_i.pageList if 'http' not in i and 'irc' not in i]
+        self.newSet.extend([i for i in page_i.pageList if 'http' not in i and 'irc' not in i])
         self.workers -= 1
 
     def to_craw(self):
@@ -64,35 +67,13 @@ class crawler(object):
     def has_free_hands(self):
         return self.n > self.workers
 
-    def filter_url_img(self, uns=False):
-        img = ['.img', '.jpg', '.bmp', '.png', '.svg']
-        res = []
-        if not uns:
-            for i in self.data:
-                if max(map(lambda x: x in i.title, img)) and '/wiki/' not in i.title:
-                    res.append(i.title)
-            return res
-        else:
-            return self.unvisitedPage
+    def download_img(self, method=None):
+        url_img_list = []
+        if not method:
+            url_img_list = [i.title for i in self.data] + self.unvisitedPage
+        elif method == 'visited':
+            url_img_list = [i.title for i in self.data]
+        elif method == 'unvisited':
+            url_img_list = self.unvisitedPage
 
-    def download_one_img(self, i, img):
-        try:
-            with urllib.request.urlopen('https:' + img) as url:
-                s = url.read()
-            t = img.split('.')[-1]
-            out = open('images/' + str(i) + '.' + t, 'wb')
-            out.write(s)
-            out.close()
-            self.workers -= 1
-        except:
-            self.bag_img.append(img)
-            self.workers -= 1
-
-    def download_img(self, uns=False):
-        res = self.filter_url_img(uns=uns)
-        for i, img in enumerate(res):
-            while (self.workers >= self.n):
-                sleep(0.2)
-            self.workers += 1
-            Thread(target=self.download_one_img, args=(i, img)).start()
-        print('uploading done!')
+        self.downloader.download_img(url_img_list)
