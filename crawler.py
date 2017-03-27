@@ -41,17 +41,21 @@ class crawler(object):
         self.newSet += [i for i in page_i.pageList if 'http' not in i and 'irc' not in i]
         self.workers -= 1
 
-    def toCraw(self):
+    def to_craw(self):
         self.newSet = []
         for i in self.unvisitedPage[:self.batch]:
             while not self.has_free_hands():
                 sleep(0.2)
             self.workers += 1
             Thread(target=self.one_hand, args=(i,)).start()
+
         while (self.workers > 0):
             sleep(0.2)
+
         self.newSet = list(set(self.newSet) - set([i.title for i in self.data]))
-        self.unvisitedPage = self.unvisitedPage[self.batch:] + self.newSet
+        del self.unvisitedPage[:self.batch]
+        self.unvisitedPage.extend(self.newSet)
+
         self.newSet = []
 
     def has_step(self):
