@@ -8,8 +8,8 @@ from page import page
 class crawler(object):
     def __init__(self, init, n=3, batch=250):
         self.data = []
-        self.unvisitedPage = []
-        self.unvisitedPage.append(init)
+        self.unvisitedPage = {init}#[]
+        #self.unvisitedPage.append(init)
 
         self.n = n
         self.workers = 0
@@ -46,18 +46,20 @@ class crawler(object):
 
     def one_step(self):
         self.newSet = []
-        for i in self.unvisitedPage[:self.batch]:
+        delete = list(self.unvisitedPage)[:self.batch]
+        for i in delete:
             while not self.has_free_hands():
                 sleep(0.2)
             self.workers += 1
+
             Thread(target=self.one_hand, args=(i,)).start()
 
         while (self.workers > 0):
             sleep(0.2)
 
-        self.newSet = list(set(self.newSet) - set([i.title for i in self.data]))
-        del self.unvisitedPage[:self.batch]
-        self.unvisitedPage.extend(self.newSet)
+        self.newSet = set(self.newSet) - set([i.title for i in self.data])
+        self.unvisitedPage.difference_update(delete)
+        self.unvisitedPage.update(self.newSet)
 
         self.newSet = []
 
@@ -69,7 +71,8 @@ class crawler(object):
             n += self.batch
             print('visited', len(self.data),
                   'unvisited', len(self.unvisitedPage),
-                  'mean_time:', (time() - b) / n)
+                  'mean_time:', (time() - b) / n,
+                  'iter time:', (time() - b))
             print('fraction', len(self.unvisitedPage) / len(self.data))
 
     def has_step(self):
@@ -81,10 +84,10 @@ class crawler(object):
     def download_img(self, method=None):
         url_img_list = []
         if not method:
-            url_img_list = [i.title for i in self.data] + self.unvisitedPage
+            url_img_list = [i.title for i in self.data] + list(self.unvisitedPage)
         elif method == 'visited':
             url_img_list = [i.title for i in self.data]
         elif method == 'unvisited':
-            url_img_list = self.unvisitedPage
+            url_img_list = list(self.unvisitedPage)
 
         self.downloader.download_img(url_img_list)

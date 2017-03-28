@@ -9,7 +9,7 @@ class Downloader:
         self.bag_img = []
         self.n = n
         self.workers = 0
-        self.img = ['.img', '.jpg', '.bmp', '.png', '.svg']
+        self.img = ['.img', '.jpg', '.bmp', '.png', '.svg', '.JPG', '.PNG', '.BMP', '.SVG']
 
     def filter_url_img(self, data):
         res = [i for i in data if max(map(lambda x: x in i, self.img)) and '/wiki/' not in i]

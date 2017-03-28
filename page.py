@@ -13,9 +13,8 @@ class page(object):
             url = self.head
         else:
             url = self.head + self.title
-
-        req = get(url)
         try:
+            req = get(url)
             soup = BeautifulSoup(req.content.decode(req.encoding), "lxml")
             arList = [encode_and_replace(li) for li in soup.findAll('a')]
             arList = list(set([i for i in arList if self.validation(i)]))
