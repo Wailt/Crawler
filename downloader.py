@@ -1,7 +1,6 @@
-from urllib.request import urlopen
-
 from threading import Thread
 from time import sleep
+from urllib.request import urlopen
 
 
 class Downloader:
@@ -23,10 +22,10 @@ class Downloader:
             out = open('images/' + str(i) + '.' + img.split('.')[-1], 'wb')
             out.write(s)
             out.close()
-            self.workers -= 1
         except:
             self.bag_img.append(img)
-            self.workers -= 1
+
+        self.workers -= 1
 
     def download_img(self, data):
         res = self.filter_url_img(data)

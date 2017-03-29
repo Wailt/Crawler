@@ -8,13 +8,13 @@ def encode_and_replace(li):
 
 
 class page(object):
-    def getHiperlinks(self):
+    def __getHiperlinks(self):
         url = self.head if self.title == self.head else self.head + self.title
         try:
             req = get(url)
             soup = BeautifulSoup(req.content.decode(req.encoding), "lxml")
             ar_list = [encode_and_replace(li) for li in soup.findAll('a')]
-            return list(set([i for i in ar_list if self.validation(i)]))
+            return list(set([i for i in ar_list if self.__valid(i)]))
 
         except:
             return []
@@ -22,7 +22,7 @@ class page(object):
     def __init__(self, title, head):
         self.title = title
         self.head = head
-        self.pageList = self.getHiperlinks()
+        self.pageList = self.__getHiperlinks()
 
     def __str__(self):
         s = "(" + str(self.title) + ":\n  "
@@ -31,7 +31,7 @@ class page(object):
         s += ')'
         return s
 
-    def validation(self, ar):
+    def __valid(self, ar):
         bad = min(list(map(lambda x: not x in ar, features_not)))
         return bad
 

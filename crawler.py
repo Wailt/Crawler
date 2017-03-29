@@ -8,8 +8,7 @@ from page import page
 class crawler(object):
     def __init__(self, init, n=3, batch=250):
         self.data = []
-        self.unvisitedPage = {init}#[]
-        #self.unvisitedPage.append(init)
+        self.unvisitedPage = {init}
 
         self.n = n
         self.workers = 0
@@ -17,7 +16,6 @@ class crawler(object):
 
         self.batch = batch
         self.head = init
-        self.bag_img = []
 
         self.downloader = Downloader(n=16)
 
@@ -69,11 +67,14 @@ class crawler(object):
         while (self.has_step()):
             self.one_step()
             n += self.batch
-            print('visited', len(self.data),
-                  'unvisited', len(self.unvisitedPage),
-                  'mean_time:', (time() - b) / n,
+            print('new iteration')
+            print('visited', len(self.data), '\n',
+                  'unvisited', len(self.unvisitedPage))
+            print('mean_time:', (time() - b) / n, '\n',
                   'iter time:', (time() - b))
-            print('fraction', len(self.unvisitedPage) / len(self.data))
+            print('fraction', round(len(self.unvisitedPage) / len(self.data), 1))
+            print('passed', round(len(self.data) / (len(self.unvisitedPage) + len(self.data)), 2))
+            print('\n')
 
     def has_step(self):
         return len(self.unvisitedPage) > 0
