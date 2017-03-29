@@ -9,16 +9,13 @@ def encode_and_replace(li):
 
 class page(object):
     def getHiperlinks(self):
-        if self.title == self.head:
-            url = self.head
-        else:
-            url = self.head + self.title
+        url = self.head if self.title == self.head else self.head + self.title
         try:
             req = get(url)
             soup = BeautifulSoup(req.content.decode(req.encoding), "lxml")
-            arList = [encode_and_replace(li) for li in soup.findAll('a')]
-            arList = list(set([i for i in arList if self.validation(i)]))
-            return arList
+            ar_list = [encode_and_replace(li) for li in soup.findAll('a')]
+            return list(set([i for i in ar_list if self.validation(i)]))
+
         except:
             return []
 
