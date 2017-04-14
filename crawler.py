@@ -71,7 +71,7 @@ class crawler(object):
             print('visited', len(self.data), '\n',
                   'unvisited', len(self.unvisitedPage))
             print('mean_time:', (time() - b) / n, '\n',
-                  'iter time:', (time() - b))
+                  'total time:', (time() - b))
             print('fraction', round(len(self.unvisitedPage) / len(self.data), 1))
             print('passed', round(len(self.data) / (len(self.unvisitedPage) + len(self.data)), 2))
             print('\n')
