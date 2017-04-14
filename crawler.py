@@ -4,18 +4,19 @@ from time import sleep, time
 from downloader import Downloader
 from page import page
 
+from multiprocessing.pool import ThreadPool
 
 class crawler(object):
     def __init__(self, init, n=3, batch=250):
         self.data = []
         self.unvisitedPage = {init}
 
-        self.n = n
-        self.workers = 0
         self.newSet = []
 
         self.batch = batch
         self.head = init
+
+        self.thread_pool = ThreadPool(n)
 
         self.downloader = Downloader(n=16)
 
@@ -40,20 +41,12 @@ class crawler(object):
         if p not in self:
             self.add(page_i)
         self.newSet.extend([i for i in page_i.pageList if 'http' not in i and 'irc' not in i])
-        self.workers -= 1
 
     def one_step(self):
         self.newSet = []
         delete = list(self.unvisitedPage)[:self.batch]
-        for i in delete:
-            while not self.has_free_hands():
-                sleep(0.2)
-            self.workers += 1
 
-            Thread(target=self.one_hand, args=(i,)).start()
-
-        while (self.workers > 0):
-            sleep(0.2)
+        self.thread_pool.map(self.one_hand, delete)
 
         self.newSet = set(self.newSet) - set([i.title for i in self.data])
         self.unvisitedPage.difference_update(delete)
@@ -78,9 +71,6 @@ class crawler(object):
 
     def has_step(self):
         return len(self.unvisitedPage) > 0
-
-    def has_free_hands(self):
-        return self.n > self.workers
 
     def download_img(self, method=None):
         url_img_list = []
