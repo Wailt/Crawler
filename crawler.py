@@ -58,7 +58,6 @@ class crawler(object):
         self.newSet = set(self.newSet) - set([i.title for i in self.data])
         self.unvisitedPage.difference_update(delete)
         self.unvisitedPage.update(self.newSet)
-
         self.newSet = []
 
     def to_craw(self):
